@@ -1,4 +1,5 @@
-import { Sunrise, Moon, Database } from "lucide-react"
+import { ClassGroups } from "@/lib/utils"
+import { Boxes, List, Notebook, Sunrise } from "lucide-react"
 
 type dataProps = {
     icon: any
@@ -6,7 +7,7 @@ type dataProps = {
     data: string,
 }
 
-function HomeStatCard({ icon: Icon, title, data }: dataProps) {
+function SubjectStatCard({ icon: Icon, title, data }: dataProps) {
     return (
         <div className="flex items-center gap-3 rounded-2xl bg-card p-4 shadow-sm ring-1 ring-border">
             <span aria-hidden className="grid size-8 place-items-center rounded-xl bg-brand text-white">
@@ -20,27 +21,33 @@ function HomeStatCard({ icon: Icon, title, data }: dataProps) {
     )
 }
 
-export function HomeStatistics() {
+export function SubjecStatistics() {
     const data: dataProps[] = [
         {
-            title: "Students",
-            data: "30",
-            icon: Sunrise
+            title: "Class Groups",
+            data: ClassGroups.length.toString(),
+            icon: Boxes
         },
         {
-            title: "Staff",
+            title: "Sub-Classes",
             data: "30",
-            icon: Sunrise
-        }, {
+            icon: List
+        },
+        {
+            title: "Subjects",
+            data: "30",
+            icon: Notebook
+        },
+        {
             title: "Classes",
             data: "30",
             icon: Sunrise
         },
     ]
     return (
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {data.map((item, index) => (
-                <HomeStatCard key={index} icon={Sunrise} title={item.title} data={item.data} />
+                <SubjectStatCard key={index} icon={item.icon} title={item.title} data={item.data} />
             ))}
         </div>
     )

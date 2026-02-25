@@ -32,6 +32,16 @@ const StaffInfoSchema = z.object({
     socialSecurityNo: z.string().optional(),
 })
 
+const SubjectSchema = z.object({
+    id: z.string().optional(),
+    classGroup: z.string(),
+    name: z.string(),
+    scoreType: z.string(),
+    scoreOptions: z.array(z.string()).optional(),
+})
+
+
 export type ClassRoomSchemaT = z.infer<typeof ClassRoomSchema>
 export type UserSchemaT = z.infer<typeof UserSchema>
-export type StaffT= z.infer<typeof StaffInfoSchema>
+export type StaffT = z.infer<typeof StaffInfoSchema>
+export type SubjectT = z.infer<typeof SubjectSchema>

@@ -38,56 +38,58 @@ export default function Classrooms() {
 
     return (
         <>
-            <section className="rounded-2xl bg-card p-6 md:p-8 shadow-sm ring-1 ring-border">
-                <div className="flex flex-row justify-between items-center">
-                    <h1 className="text-balance text-2xl font-semibold text-foreground">Classrooms ({classrooms.length})</h1>
-                    <Button className="bg-brand cursor-pointer text-white" onClick={() => onOpen()}>
-                        <PlusCircle />
-                        Create Class
-                    </Button>
-                </div>
+            <div className="h-dvh">
+                <section className="rounded-2xl bg-card p-6 md:p-8 shadow-sm ring-1 ring-border">
+                    <div className="flex flex-row justify-between items-center">
+                        <h1 className="text-balance text-2xl font-semibold text-foreground">Classrooms ({classrooms.length})</h1>
+                        <Button className="bg-brand cursor-pointer text-white" onClick={() => onOpen()}>
+                            <PlusCircle />
+                            Create Class
+                        </Button>
+                    </div>
 
-                {/* <div className="mt-6 mb-4 h-80 w-full rounded-xl bg-background p-4 ring-1 ring-border"> */}
-                {/*     <ResponsiveContainer width="100%" height="100%"> */}
-                {/*         <BarChart data={classrooms} barCategoryGap={18}> */}
-                {/*             <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" /> */}
-                {/*             <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" /> */}
-                {/*             <YAxis stroke="hsl(var(--muted-foreground))" /> */}
-                {/*             <Tooltip */}
-                {/*                 contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} */}
-                {/*                 labelStyle={{ color: "hsl(var(--foreground))" }} */}
-                {/*             /> */}
-                {/*             <Legend /> */}
-                {/*             <Bar dataKey="studentCount" fill="#ff9001" radius={[6, 6, 0, 0]} /> */}
-                {/*         </BarChart> */}
-                {/*     </ResponsiveContainer> */}
-                {/* </div> */}
+                    <div className="mt-6 mb-4 h-80 w-full rounded-xl bg-background p-4 ring-1 ring-border">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={classrooms} barCategoryGap={18}>
+                                <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" />
+                                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
+                                <YAxis stroke="hsl(var(--muted-foreground))" />
+                                <Tooltip
+                                    contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+                                    labelStyle={{ color: "hsl(var(--foreground))" }}
+                                />
+                                <Legend />
+                                <Bar dataKey="studentCount" fill="#ff9001" radius={[6, 6, 0, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
 
-                <div className="mt-8">
-                    <p className="mt-2 text-muted-foreground">List of all Classes.</p>
-                </div>
+                    <div className="mt-8">
+                        <p className="mt-2 text-muted-foreground">List of all Classes.</p>
+                    </div>
 
-                <ul className="mt-6 divide-y divide-border">
-                    {classrooms.map((t) => (
-                        <li key={t.id} className="flex items-center gap-4 py-4">
-                            <div className="size-10 shrink-0 rounded-full bg-primary/10 grid place-items-center text-primary font-medium">
-                                {t.name[0]}
-                            </div>
-                            <div className="min-w-0 flex-1">
-                                <div className="flex items-center justify-between">
-                                    <p className="truncate font-medium text-foreground">{t.name}</p>
-                                    {/* <span className="text-xs text-muted-foreground">{t.studentCount}</span> */}
+                    <ul className="mt-6 divide-y divide-border">
+                        {classrooms.map((t) => (
+                            <li key={t.id} className="flex items-center gap-4 py-4">
+                                <div className="size-10 shrink-0 rounded-full bg-primary/10 grid place-items-center text-primary font-medium">
+                                    {t.name[0]}
                                 </div>
-                                <p className="truncate text-sm text-muted-foreground">ClassTeacher: {t.classTeacher}</p>
-                            </div>
-                            <Button className="color-brand-100" color="primary">
-                                <EyeIcon />
-                                View
-                            </Button>
-                        </li>
-                    ))}
-                </ul>
-            </section>
+                                <div className="min-w-0 flex-1">
+                                    <div className="flex items-center justify-between">
+                                        <p className="truncate font-medium text-foreground">{t.name}</p>
+                                        {/* <span className="text-xs text-muted-foreground">{t.studentCount}</span> */}
+                                    </div>
+                                    <p className="truncate text-sm text-muted-foreground">ClassTeacher: {t.classTeacher}</p>
+                                </div>
+                                <Button className="color-brand-100" color="primary">
+                                    <EyeIcon />
+                                    View
+                                </Button>
+                            </li>
+                        ))}
+                    </ul>
+                </section>
+            </div>
 
             <Modal isOpen={isOpen} size="lg" backdrop="opaque" placement="center" onOpenChange={onOpenChange}>
                 <ModalContent>

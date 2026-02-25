@@ -6,8 +6,8 @@ import { UsersWidget } from "@/components/dashboard/users"
 import { ConsumptionChart } from "@/components/dashboard/consumption-chart"
 import { Shortcuts } from "@/components/dashboard/shortcuts"
 import { LightPanels } from "@/components/dashboard/light-panels"
-import { Scenes } from "@/components/dashboard/scenes"
 import EnergyWidget from "@/components/dashboard/energy-widget"
+import { HomeStatistics } from "@/components/dashboard/home-stats" 
 
 export function MainDashboard() {
     return (
@@ -33,7 +33,7 @@ export function MainDashboard() {
                             <div className="mb-3 flex items-center justify-between">
                                 <h2 className="text-sm font-semibold text-foreground">Statistics</h2>
                             </div>
-                            <Scenes />
+                            <HomeStatistics />
                         </div>
                     </section>
 

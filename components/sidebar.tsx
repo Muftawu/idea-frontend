@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import {
     Home,
-    MessageCircle,
     BarChart3,
     Shield,
     TabletSmartphone,
@@ -14,6 +13,10 @@ import {
     LogOut,
     ChevronFirst,
     ChevronLast,
+    Users,
+    Theater,
+    BookOpen,
+    SettingsIcon
 } from "lucide-react"
 import Image from "next/image"
 import ideaLogo from "../public/images/idea.jpg"
@@ -26,14 +29,16 @@ type Item = {
 
 const items: Item[] = [
     { href: "/", label: "Home", icon: Home },
-    { href: "/staff", label: "Staff", icon: MessageCircle },
-    { href: "/classrooms", label: "Classrooms", icon: MessageCircle },
-    { href: "/statistics", label: "Statistics", icon: BarChart3 },
-    { href: "/security", label: "Settings", icon: Shield },
-    { href: "/devices", label: "Devices", icon: TabletSmartphone },
+    { href: "/staff", label: "Staff", icon: Users },
+    { href: "/classrooms", label: "Classrooms", icon: Theater },
+    { href: "/subjects", label: "Subjects", icon: BookOpen },
+    { href: "/settings", label: "Settings", icon: SettingsIcon },
     { href: "/profile", label: "Profile", icon: UserRound },
-    { href: "/signin", label: "Signin", icon: LogIn },
-    { href: "/signup", label: "Signup", icon: LogOut },
+
+    // { href: "/statistics", label: "Statistics", icon: BarChart3 },
+    // { href: "/security", label: "Settings", icon: Shield },
+    // { href: "/signin", label: "Signin", icon: LogIn },
+    // { href: "/signup", label: "Signup", icon: LogOut },
 ]
 
 export function Sidebar() {
@@ -77,7 +82,7 @@ export function Sidebar() {
                 </button>
             </div>
 
-            <nav className="mt-2 flex-1">
+            <nav className="mt-0 flex-1">
                 <ul className="flex flex-col gap-1 px-3">
                     {items.map(({ href, label, icon: Icon }) => {
                         const active = pathname === href || (href !== "/" && pathname?.startsWith(href))
