@@ -5,6 +5,8 @@ import { useState } from "react"
 import { Sidebar } from "@/components/sidebar"
 import { Topbar } from "@/components/topbar"
 import { HeroUIProvider } from "@heroui/react";
+import { ToastContainer } from "react-toastify"
+import { AuthProvider } from "@/context/authContext"
 
 export default function DashboardLayout({
     children,
@@ -37,7 +39,10 @@ export default function DashboardLayout({
                         <main className="flex-1 w-full lg:w-auto rounded-b-3xl lg:rounded-r-3xl lg:rounded-bl-none bg-muted p-3 sm:p-5 md:px-7 md:py-7 xl:pb-7 xl:pt-0 overflow-auto">
                             <Topbar onMenuClick={() => setSidebarOpen(true)} />
                             <HeroUIProvider>
-                                {children}
+                                <ToastContainer />
+                                <AuthProvider>
+                                    {children}
+                                </AuthProvider>
                             </HeroUIProvider>
                         </main>
                     </div>

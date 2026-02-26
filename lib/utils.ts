@@ -13,3 +13,9 @@ export const ClassGroups = [
     { key: "jhs", value: "JHS" },
 ]
 
+export const BaseRequestHeaders = {
+    "Content-Type": "application/json"
+}
+
+export const BaseErrMsg = "Something went wrong. Please try again"
+

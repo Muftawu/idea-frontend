@@ -1,7 +1,7 @@
 "use client"
 
 import { Bell, Search, Settings, User, Menu, SunMoon } from "lucide-react"
-import { useState } from "react"
+import { useContext, useState } from "react"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -13,13 +13,22 @@ import {
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { ColorThemePicker } from "@/components/color-theme"
+import { AuthContext, useAuthContext } from "@/context/authContext"
+import { Spinner } from "@heroui/react"
 
 interface TopbarProps {
     onMenuClick?: () => void
 }
 
 export function Topbar({ onMenuClick }: TopbarProps) {
+    const authInfo = useAuthContext()
     const [q, setQ] = useState("")
+
+    if (!authInfo || !authInfo.userInfo) return (
+        <div className="flex flex-row justify-end mb-2">
+        <Spinner color="warning" size="sm" />
+        </div>
+    )
 
     return (
         <header className="lg:-mx-7 sticky top-0 z-30 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border mb-6 rounded-xl lg:rounded-none">
@@ -70,48 +79,20 @@ export function Topbar({ onMenuClick }: TopbarProps) {
                         </DropdownMenuContent>
                     </DropdownMenu>
 
-                    {/* Settings */}
-
                     <ThemeToggle />
-
-                    {/* <DropdownMenu> */}
-                    {/*     <DropdownMenuTrigger className="rounded-full p-2 hover:bg-muted focus:outline-none focus:ring-2"> */}
-                    {/*         <Settings className="size-5" aria-hidden /> */}
-                    {/*         <span className="sr-only">Open settings</span> */}
-                    {/*     </DropdownMenuTrigger> */}
-                    {/*     <DropdownMenuContent align="end" className="w-56"> */}
-                    {/*         <DropdownMenuLabel>Settings</DropdownMenuLabel> */}
-                    {/*         <DropdownMenuSeparator /> */}
-                    {/*         <DropdownMenuItem asChild> */}
-                    {/*             <button className="w-full text-left">Manage users</button> */}
-                    {/*         </DropdownMenuItem> */}
-                    {/*         <DropdownMenuItem asChild> */}
-                    {/*             <button className="w-full text-left">Network</button> */}
-                    {/*         </DropdownMenuItem> */}
-                    {/*         <DropdownMenuSeparator /> */}
-                    {/*         <div className="px-2 py-1.5"> */}
-                    {/*             <ThemeToggle /> */}
-                    {/*         </div> */}
-                    {/*         {/* Brand color picker */} 
-                    {/*         <div className="px-2 pb-2"> */}
-                    {/*             <ColorThemePicker /> */}
-                    {/*             <SunMoon /> */}
-                    {/*         </div> */}
-                    {/*     </DropdownMenuContent> */}
-                    {/* </DropdownMenu> */}
 
                     {/* User dropdown */}
                     <DropdownMenu>
                         <DropdownMenuTrigger className="rounded-full p-1.5 hover:bg-muted focus:outline-none focus:ring-2">
                             <Avatar className="size-8">
-                                <AvatarFallback>JR</AvatarFallback>
+                                <AvatarFallback>{authInfo.userInfo?.first_name ? authInfo.userInfo.first_name[0] : "U"}</AvatarFallback>
                             </Avatar>
                             <span className="sr-only">Open user menu</span>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-56">
                             <DropdownMenuLabel className="flex items-center gap-2">
                                 <User className="size-4" />
-                                Signed in as Jennifer
+                                Signed in as {authInfo.userInfo.first_name}
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem asChild>
@@ -121,7 +102,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
                                 <a href="/devices">My devices</a>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive">Sign out</DropdownMenuItem>
+                            <DropdownMenuItem onClick={authInfo.logout} className="text-destructive cursor-pointer">Sign out</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>

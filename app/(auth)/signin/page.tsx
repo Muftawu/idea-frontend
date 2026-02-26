@@ -1,50 +1,96 @@
 "use client"
 
-import Link from "next/link"
-import { useState } from "react"
+import { useState, FormEvent } from "react"
+import Image from "next/image";
+import IdeaLogo from "../../../public/images/idea.jpg"
+import { Form, Input, Button } from "@heroui/react";
+import { BaseErrMsg, BaseRequestHeaders } from "@/lib/utils";
+import { toast } from "react-toastify";
+import { redirect } from "next/navigation";
 
 export default function SignInPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
 
-  return (
-    <main className="min-h-[80dvh] flex items-center justify-center p-6">
-      <div className="w-full max-w-sm rounded-2xl bg-card p-6 ring-1 ring-border">
-        <h1 className="text-2xl font-semibold text-foreground mb-2 text-balance">Sign in</h1>
-        <p className="text-sm text-muted-foreground mb-6">Welcome back. Enter your credentials.</p>
-        <form className="grid gap-4">
-          <label className="grid gap-2">
-            <span className="text-sm text-muted-foreground">Email</span>
-            <input
-              type="email"
-              className="h-10 rounded-md bg-background ring-1 ring-border px-3 outline-none"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-            />
-          </label>
-          <label className="grid gap-2">
-            <span className="text-sm text-muted-foreground">Password</span>
-            <input
-              type="password"
-              className="h-10 rounded-md bg-background ring-1 ring-border px-3 outline-none"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-            />
-          </label>
-          <button type="button" className="h-10 rounded-md bg-brand text-background">
-            Sign in
-          </button>
-        </form>
-        <p className="mt-4 mb-3 text-sm text-muted-foreground">
-          Don’t have an account?{" "}
-          <Link href="/signup" className="text-brand">
-            Sign up
-          </Link>
-        </p>
-        <Link href="/dashboard" className="text-brand text-sm">Back to Dashboard</Link>
-      </div>
-    </main>
-  )
+    const [username, setUsername] = useState<string>("")
+    const [password, setPassword] = useState<string>("")
+
+    const handleSignin = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+
+        const fn = async () => {
+            const response = await fetch("/api/auth", {
+                method: "POST",
+                headers: { ...BaseRequestHeaders },
+                body: JSON.stringify({ username, password })
+            })
+            const result = await response.json()
+            if (!response.ok) {
+                return Promise.reject(result.message)
+            }
+            return Promise.resolve(result.message)
+        }
+        await toast.promise(
+            fn,
+            {
+                pending: "Signing in...",
+                success: {
+                    render({ data }: { data: string }) {
+                        window.location.href = "/dashboard"
+                        return `${data}`
+                    }
+                },
+                error: {
+                    render({ data }: { data: string }) {
+                        return `${data}`
+                    }
+                }
+            }
+        )
+    }
+
+    return (
+        <main className="h-dvh flex items-center justify-center p-6">
+            <div className="w-full max-w-sm rounded-2xl bg-card p-6 ring-1 ring-border">
+                <div className="flex flex-row justify-center items-center">
+                    <Image
+                        src={IdeaLogo}
+                        alt="idea-logo"
+                        width={70}
+                        height={70}
+                        className="rounded-md object- opacity-90"
+                    />
+                </div>
+
+
+                <h1 className="text-2xl font-semibold text-foreground mt-4 text-balance">Sign in</h1>
+                <p className="text-sm text-muted-foreground mb-6">Welcome back. Enter your credentials.</p>
+
+                <Form onSubmit={handleSignin} className="grid gap-4">
+                    <Input
+                        isRequired
+                        label="Username"
+                        labelPlacement="outside"
+                        placeholder="Enter your username"
+                        className="w-full mb-4"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                    />
+
+                    <Input
+                        isRequired
+                        label="Password"
+                        labelPlacement="outside"
+                        name="password"
+                        placeholder="Enter your password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+
+                    <Button type="submit" color="primary" className="text-center mt-4">
+                        Submit
+                    </Button>
+                </Form>
+            </div>
+        </main>
+    )
 }

@@ -10,8 +10,8 @@ const ClassRoomSchema = z.object({
 
 const UserSchema = z.object({
     id: z.string().optional(),
-    firstName: z.string(),
-    lastName: z.string(),
+    first_name: z.string(),
+    last_name: z.string(),
     email: z.string(),
     phone: z.string(),
     gender: z.string(),

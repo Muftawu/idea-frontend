@@ -6,12 +6,13 @@ import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Suspense } from "react"
-// import ButtonDownload from '@/components/button-download';
+import { ToastContainer } from 'react-toastify';
 import { HeroUIProvider } from "@heroui/react";
+import { AuthProvider } from "@/context/authContext"
 
 export const metadata: Metadata = {
     title: "Idea International",
-    description: "school management system for idea international school",
+    description: "school management system",
 }
 
 export default function RootLayout({
@@ -28,13 +29,15 @@ export default function RootLayout({
         >
             <body className="font-sans">
                 <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-                    <Suspense fallback={null}>
-                        <HeroUIProvider>
-                            {children}
-                        </HeroUIProvider>
-                        {/* <ButtonDownload /> */}
-                        <Analytics />
-                    </Suspense>
+                    <AuthProvider >
+                        <Suspense fallback={null}>
+                            <HeroUIProvider>
+                                <ToastContainer />
+                                {children}
+                            </HeroUIProvider>
+                            <Analytics />
+                        </Suspense>
+                    </AuthProvider>
                 </ThemeProvider>
             </body>
         </html >
