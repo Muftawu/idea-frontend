@@ -189,27 +189,49 @@ export default function Staff() {
     }
 
     const handleStaffInfoChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        if (modalAction === "update") {
+            const updates = staffUpdates.current
+            const fieldExists = updates.find(obj => obj.field === e.target.name)
+            if (fieldExists) {
+                fieldExists.value = e.target.value
+            } else {
+                staffUpdates.current.push({ field: e.target.name, value: e.target.value })
+            }
+        }
         setStaffInfo({ ...staffInfo, [e.target.name]: e.target.value })
     }
 
     const handleUpdateStaffInfo = async () => {
         onClose()
-        const payload = staffUpdates.current.map((item) => ({ [item.field]: item.value }))
-        console.log("payload", payload)
+        if (staffUpdates.current.length < 1) return toast.info("No changes made")
+
+        let personalInfoFieldUpdates = {}
+        let staffInfoFieldUpdates = {}
+        const personalInfoFormFields = ["first_name", "last_name", "email", "phone", "gender", "nationality", "dateOfBirth"]
+        const payload = staffUpdates.current.map(({ field, value }) => ({ [field]: value }))
+
+        for (var item in payload) {
+            const [[k, v]] = Object.entries(payload[item])
+            if (personalInfoFormFields.includes(k)) {
+                personalInfoFieldUpdates = { ...personalInfoFieldUpdates, [k]: v }
+            } else {
+                staffInfoFieldUpdates = { ...staffInfoFieldUpdates, [k]: v }
+            }
+        }
+        const jsonData = { id: staffInfo.id, personalInfo: personalInfoFieldUpdates, staffInfo: staffInfoFieldUpdates }
 
         const fn = async () => {
             try {
                 const response = await fetch("/api/staff", {
                     method: "PATCH",
                     headers: { ...BaseRequestHeaders },
-                    body: JSON.stringify({ id: staffInfo.id, payload })
+                    body: JSON.stringify(jsonData)
                 })
                 if (!response.ok) {
                     return Promise.reject(response.status)
                 } else {
                     return Promise.resolve(response.status)
                 }
-
             } catch (err: any) {
                 throw Error(err)
             }
@@ -226,6 +248,7 @@ export default function Staff() {
         )
         handleOnCloseModal()
         setLoading(false)
+        staffUpdates.current = []
     }
 
     return (
@@ -257,7 +280,7 @@ export default function Staff() {
                             allStaff.map((item, index) => (
                                 <li key={index} className="flex items-center gap-4 py-4">
                                     <div className="size-10 shrink-0 rounded-full bg-primary/10 grid place-items-center text-primary font-medium">
-                                        {item.personalInfo?.first_name[0]} {item.personalInfo?.last_name[0]}
+                                        {item.personalInfo?.first_name[0]}{item.personalInfo?.last_name[0]}
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-center justify-between">
