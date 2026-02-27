@@ -33,7 +33,8 @@ export default function DashboardLayout({
               ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
             `}
                         >
-                            <Sidebar onClose={() => setSidebarOpen(false)} />
+                            <Sidebar  />
+                            {/* <Sidebar onClose={() => setSidebarOpen(false)} /> */}
                         </div>
 
                         <main className="flex-1 w-full lg:w-auto rounded-b-3xl lg:rounded-r-3xl lg:rounded-bl-none bg-muted p-3 sm:p-5 md:px-7 md:py-7 xl:pb-7 xl:pt-0 overflow-auto">
