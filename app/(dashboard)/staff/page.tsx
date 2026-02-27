@@ -1,9 +1,9 @@
 "use client"
-import { PlusCircle, Sunrise, EyeIcon } from "lucide-react"
-import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts"
-import { useState } from "react"
-import { StaffT } from "@/lib/schemas"
-import { Input, Select, SelectItem, Checkbox, Button, DatePicker } from "@heroui/react";
+import { PlusCircle, EyeIcon, UserRound, TrashIcon, Edit } from "lucide-react"
+import React from "react"
+import { useState, useEffect, useRef } from "react"
+import { StaffT, StaffStatSchemaT } from "@/lib/schemas"
+import { Input, Select, SelectItem, Button, DatePicker, Spinner } from "@heroui/react";
 import {
     Modal,
     ModalContent,
@@ -14,58 +14,137 @@ import {
 } from "@heroui/react";
 import { Separator } from "@/components/ui/separator"
 import StaffStatistics from "@/components/dashboard/staff-stats"
-
+import { BaseErrMsg, BaseRequestHeaders } from "@/lib/utils";
+import { Card, CardHeader, CardBody, CardFooter, Divider } from "@heroui/react";
+import { toast } from "react-toastify";
+import { dynamicFormUpdates } from "@/lib/utils";
 
 export default function Staff() {
 
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
-    const [modalAction, setModalAction] = useState<"view" | "add" | "delete">("view")
+    const [loading, setLoading] = useState<boolean>(false)
 
+    const [allStaff, setAllStaff] = useState<StaffT[]>([])
+    const [staffFetched, setStaffFetched] = useState<boolean>(false)
+    const [modalAction, setModalAction] = useState<"view" | "add" | "delete" | "update">("view")
+    const [staffStats, setStaffStats] = useState<StaffStatSchemaT>({
+        maleCount: 0,
+        femaleCount: 0,
+        malePercentage: 0,
+        femalePercentage: 0
+    })
     const [staffInfo, setStaffInfo] = useState<StaffT>({
+        staffId: "",
         personalInfo: {
-            firstName: "",
-            lastName: "",
+            first_name: "",
+            last_name: "",
             email: "",
             phone: "",
             gender: "f"
         },
-        staffId: "",
         placeOfBirth: "",
         academicQualification: "",
         professionalQualification: "",
         placeOfResidence: "",
-        homeTown: "",
-        bankAccountNo: "",
-        socialSecurityNo: "",
+        hometown: "",
+        bankAccNo: "",
+        socialSecNo: "",
     })
+    const staffUpdates = useRef<dynamicFormUpdates[]>([])
 
-    const staffs: StaffT[] = [
-        {
-            personalInfo: {
-                id: "1",
-                firstName: "Staff",
-                lastName: "1",
-                email: "staff1@gmail.com",
-                phone: "0201020265",
-                gender: "m"
-            },
-            staffId: "1"
-        },
-        {
-            personalInfo: {
-                id: "2",
-                firstName: "Staff",
-                lastName: "1",
-                email: "staff1@gmail.com",
-                phone: "0201020265",
-                gender: "f"
-            },
-            staffId: "2"
-        },
-    ]
+    useEffect(() => {
+        const fetchStaffStats = async () => {
+            const response = await fetch(`/api/stats?query=staff`, {
+                headers: { ...BaseRequestHeaders },
+            })
+            const result = await response.json()
+            if (!response.ok) {
+                return Promise.reject(response.status)
+            } else {
+                setStaffStats(result.data)
+            }
+        }
+        fetchStaffStats()
+    }, [loading])
+
+    useEffect(() => {
+        const fetchAllStaff = async () => {
+            const response = await fetch(`/api/staff?query=all`, {
+                headers: { ...BaseRequestHeaders },
+            })
+            const result = await response.json()
+            if (!response.ok) {
+                return Promise.reject(response.status)
+            } else {
+                setAllStaff(result.data)
+            }
+            setStaffFetched(true)
+        }
+        fetchAllStaff()
+    }, [loading])
 
     async function handleCreateNewStaff() {
-        console.log("dialog")
+        onClose()
+        const fn = async () => {
+            try {
+                const response = await fetch("/api/staff", {
+                    method: "POST",
+                    headers: { ...BaseRequestHeaders },
+                    body: JSON.stringify(staffInfo)
+                })
+                if (!response.ok) {
+                    return Promise.reject(response.status)
+                } else {
+                    return Promise.resolve(response.status)
+                }
+
+            } catch (err: any) {
+                throw Error(err)
+            }
+        }
+
+        setLoading(true)
+        await toast.promise(
+            fn,
+            {
+                pending: "Creating staff...",
+                success: "Staff successfully created",
+                error: BaseErrMsg
+            }
+        )
+        handleOnCloseModal()
+        setLoading(false)
+    }
+
+    async function handleDeleteStaff() {
+        onClose()
+        const fn = async () => {
+            try {
+                const response = await fetch(`/api/staff?query=${staffInfo.id}`, {
+                    method: "DELETE",
+                    headers: { ...BaseRequestHeaders },
+                })
+                if (!response.ok) {
+                    return Promise.reject(response.status)
+                } else {
+                    return Promise.resolve(response.status)
+                }
+
+            } catch (err: any) {
+                throw Error(err)
+            }
+        }
+
+        setLoading(true)
+        await toast.promise(
+            fn,
+            {
+                pending: "Deleting staff...",
+                success: "Staff successfully deleted",
+                error: BaseErrMsg
+            }
+        )
+        setLoading(false)
     }
 
     function handleOpenModal(action: typeof modalAction, item?: StaffT) {
@@ -78,8 +157,8 @@ export default function Staff() {
     function handleOnCloseModal() {
         setStaffInfo({
             personalInfo: {
-                firstName: "",
-                lastName: "",
+                first_name: "",
+                last_name: "",
                 email: "",
                 phone: "",
                 gender: "f"
@@ -89,11 +168,64 @@ export default function Staff() {
             academicQualification: "",
             professionalQualification: "",
             placeOfResidence: "",
-            homeTown: "",
-            bankAccountNo: "",
-            socialSecurityNo: "",
+            hometown: "",
+            bankAccNo: "",
+            socialSecNo: "",
         })
         onClose()
+    }
+
+    const handlePersonalInfoChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        if (modalAction === "update") {
+            const updates = staffUpdates.current
+            const fieldExists = updates.find(obj => obj.field === e.target.name)
+            if (fieldExists) {
+                fieldExists.value = e.target.value
+            } else {
+                staffUpdates.current.push({ field: e.target.name, value: e.target.value })
+            }
+        }
+        setStaffInfo({ ...staffInfo, personalInfo: { ...staffInfo.personalInfo, [e.target.name]: e.target.value } })
+    }
+
+    const handleStaffInfoChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        setStaffInfo({ ...staffInfo, [e.target.name]: e.target.value })
+    }
+
+    const handleUpdateStaffInfo = async () => {
+        onClose()
+        const payload = staffUpdates.current.map((item) => ({ [item.field]: item.value }))
+        console.log("payload", payload)
+
+        const fn = async () => {
+            try {
+                const response = await fetch("/api/staff", {
+                    method: "PATCH",
+                    headers: { ...BaseRequestHeaders },
+                    body: JSON.stringify({ id: staffInfo.id, payload })
+                })
+                if (!response.ok) {
+                    return Promise.reject(response.status)
+                } else {
+                    return Promise.resolve(response.status)
+                }
+
+            } catch (err: any) {
+                throw Error(err)
+            }
+        }
+
+        setLoading(true)
+        await toast.promise(
+            fn,
+            {
+                pending: "Updating staff info...",
+                success: "Staff info successfully updated",
+                error: BaseErrMsg
+            }
+        )
+        handleOnCloseModal()
+        setLoading(false)
     }
 
     return (
@@ -107,194 +239,303 @@ export default function Staff() {
                     </Button>
                 </div>
 
-                <StaffStatistics className="" />
+                <StaffStatistics data={staffStats} className="" />
 
                 <div className="mt-8">
-                    <p className="mt-2 text-muted-foreground">All Staff ({staffs.length})</p>
+                    <p className="mt-2 text-muted-foreground">All Staff ({allStaff.length})</p>
                 </div>
 
                 <ul className="mt-6 divide-y divide-border">
-                    {staffs.map((item, index) => (
-                        <li key={index} className="flex items-center gap-4 py-4">
-                            <div className="size-10 shrink-0 rounded-full bg-primary/10 grid place-items-center text-primary font-medium">
-                                {item.personalInfo.firstName[0]} {item.personalInfo.lastName[0]}
-                            </div>
-                            <div className="min-w-0 flex-1">
-                                <div className="flex items-center justify-between">
-                                    <p className="truncate font-medium text-foreground">{item.personalInfo.firstName} {item.personalInfo.lastName}</p>
-                                    {/* <span className="text-xs text-muted-foreground">{t.studentCount}</span> */}
-                                </div>
-                                <p className="truncate text-sm text-muted-foreground">Phone: {item.personalInfo.phone}</p>
-                            </div>
-                            <Button className="color-brand-100" color="primary" onPress={() => handleOpenModal("view", item)}>
-                                <EyeIcon />
-                                View
-                            </Button>
-                        </li>
-                    ))}
+                    {!staffFetched ?
+                        <div className="flex flex-row ">
+                            <Spinner size="sm" className="text-center" />
+                            <p className="mx-4">Fetching staff data...</p>
+                        </div>
+                        :
+
+                        allStaff.length === 0 ? <p className="mx-4">No staff available</p> :
+                            allStaff.map((item, index) => (
+                                <li key={index} className="flex items-center gap-4 py-4">
+                                    <div className="size-10 shrink-0 rounded-full bg-primary/10 grid place-items-center text-primary font-medium">
+                                        {item.personalInfo?.first_name[0]} {item.personalInfo?.last_name[0]}
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex items-center justify-between">
+                                            <p className="truncate font-medium text-foreground">{item.personalInfo?.first_name} {item.personalInfo?.last_name}</p>
+                                            {/* <span className="text-xs text-muted-foreground">{t.studentCount}</span> */}
+                                        </div>
+                                        <p className="truncate text-sm text-muted-foreground">Phone: {item.personalInfo?.phone}</p>
+                                    </div>
+                                    <div className="flex flex-row justify-center items-center">
+                                        <Button className="color-brand-100" color="primary" onPress={() => handleOpenModal("update", item)}>
+                                            <Edit />
+                                            Edit
+                                        </Button>
+                                        <Button className="color-brand-100 mx-2" color="primary" onPress={() => handleOpenModal("delete", item)}>
+                                            <TrashIcon />
+                                            Del
+                                        </Button>
+                                        <Button className="color-brand-100" color="primary" onPress={() => handleOpenModal("view", item)}>
+                                            <EyeIcon />
+                                            View
+                                        </Button>
+
+                                    </div>
+                                </li>
+                            ))}
                 </ul>
             </section>
 
-            <Modal isOpen={isOpen} size="lg" backdrop="opaque" placement="center" onOpenChange={onOpenChange} className="overflow-y-auto h-[40rem]">
+            <Modal isOpen={isOpen} size="lg" backdrop="opaque" placement="center" onOpenChange={onOpenChange} className={`overflow-y-auto ${modalAction === "delete" ? "h-[20rem]" : modalAction === "view" ? "h-[37rem]" : "h-[40rem]"}`}>
                 <ModalContent>
                     {(onClose) => (
                         <>
-                            <ModalHeader className="flex flex-col m-2">
-                                Add New Staff
+                            <ModalHeader className="flex flex-col">
+                                {modalAction === "add" ?
+                                    "Add New Staff" : modalAction === "view" ? "Staff Info" : null}
                             </ModalHeader>
-                            <ModalBody className="">
-                                <p className="font-semibold">Personal Info</p>
-                                <div className="mx-4 gap-8 space-y-12 mb-4">
-                                    <Input
-                                        isRequired
-                                        label="First Name"
-                                        labelPlacement="outside"
-                                        placeholder="John"
-                                        className="w-full"
-                                        value={staffInfo.personalInfo.firstName}
-                                        onChange={(e) => setStaffInfo({ ...staffInfo, personalInfo: { ...staffInfo.personalInfo, firstName: e.target.value } })}
-                                    />
-                                    <Input
-                                        isRequired
-                                        label="Last Name"
-                                        labelPlacement="outside"
-                                        placeholder="Doe"
-                                        className="w-full"
-                                        value={staffInfo.personalInfo.lastName}
-                                        onChange={(e) => setStaffInfo({ ...staffInfo, personalInfo: { ...staffInfo.personalInfo, lastName: e.target.value } })}
-                                    />
-                                    <Input
-                                        isRequired
-                                        label="Email"
-                                        labelPlacement="outside"
-                                        placeholder="jdoe@gmail.com"
-                                        className="w-full"
-                                        value={staffInfo.personalInfo.email}
-                                        onChange={(e) => setStaffInfo({ ...staffInfo, personalInfo: { ...staffInfo.personalInfo, email: e.target.value } })}
-                                    />
-                                    <Input
-                                        isRequired
-                                        label="Phone"
-                                        labelPlacement="outside"
-                                        placeholder="054XXXXXXXX"
-                                        className="w-full"
-                                        value={staffInfo.personalInfo.firstName}
-                                        onChange={(e) => setStaffInfo({ ...staffInfo, personalInfo: { ...staffInfo.personalInfo, phone: e.target.value } })}
-                                    />
-                                    <DatePicker
-                                        label="Date of Birth"
-                                        labelPlacement="outside"
-                                        isRequired
-                                    />
-                                    <Select
-                                        isRequired
-                                        label="Nationality"
-                                        labelPlacement="outside"
-                                        placeholder="Select nationality"
-                                        value={staffInfo.personalInfo.gender}
-                                        onChange={(e) => setStaffInfo({ ...staffInfo, personalInfo: { ...staffInfo.personalInfo, nationality: e.target.value } })}
-                                    >
-                                        <SelectItem key="gh">Ghanaian</SelectItem>
-                                        <SelectItem key="ngn">Nigerian</SelectItem>
-                                    </Select>
-                                    <Select
-                                        isRequired
-                                        label="Gender"
-                                        labelPlacement="outside"
-                                        name="gender"
-                                        placeholder="Select gender"
-                                        value={staffInfo.personalInfo.gender}
-                                        onChange={(e) => setStaffInfo({ ...staffInfo, personalInfo: { ...staffInfo.personalInfo, gender: e.target.value } })}
-                                    >
-                                        <SelectItem key="t1">Teacher 1</SelectItem>
-                                        <SelectItem key="t2">Teacher 2</SelectItem>
-                                        <SelectItem key="t3">Teacher 3</SelectItem>
-                                    </Select>
-                                </div>
 
-                                <Separator />
-                                <p className="font-semibold">Academic Info</p>
-                                <div className="mx-4 gap-8 space-y-12">
-                                    <Input
-                                        isRequired
-                                        label="Place of Birth"
-                                        labelPlacement="outside"
-                                        placeholder="Accra"
-                                        className="w-full"
-                                        value={staffInfo.staffId}
-                                        onChange={(e) => setStaffInfo({ ...staffInfo, staffId: e.target.value })}
-                                    />
-                                    <Select
-                                        isRequired
-                                        label="Academic Qualification"
-                                        labelPlacement="outside"
-                                        name="gender"
-                                        placeholder="Select qualification"
-                                        value={staffInfo.personalInfo.gender}
-                                        onChange={(e) => setStaffInfo({ ...staffInfo, personalInfo: { ...staffInfo.personalInfo, gender: e.target.value } })}
-                                    >
-                                        <SelectItem key="bachelors">Bachelors</SelectItem>
-                                        <SelectItem key="hnd">Diploma</SelectItem>
-                                        <SelectItem key="wassce">Wassce</SelectItem>
-                                    </Select>
-                                    <Input
-                                        isRequired
-                                        label="Professional Qualification"
-                                        labelPlacement="outside"
-                                        placeholder="Teacher"
-                                        className="w-full"
-                                        value={staffInfo.personalInfo.lastName}
-                                        onChange={(e) => setStaffInfo({ ...staffInfo, personalInfo: { ...staffInfo.personalInfo, lastName: e.target.value } })}
-                                    />
-                                    <Input
-                                        isRequired
-                                        label="Residence"
-                                        labelPlacement="outside"
-                                        placeholder="Kasoa"
-                                        className="w-full"
-                                        value={staffInfo.personalInfo.email}
-                                        onChange={(e) => setStaffInfo({ ...staffInfo, personalInfo: { ...staffInfo.personalInfo, email: e.target.value } })}
-                                    />
-                                    <Input
-                                        isRequired
-                                        label="Hometown"
-                                        labelPlacement="outside"
-                                        placeholder="Ho"
-                                        className="w-full"
-                                        value={staffInfo.personalInfo.firstName}
-                                        onChange={(e) => setStaffInfo({ ...staffInfo, personalInfo: { ...staffInfo.personalInfo, phone: e.target.value } })}
-                                    />
-                                    <Input
-                                        isRequired
-                                        label="Bank Acc No"
-                                        labelPlacement="outside"
-                                        placeholder="XXXX-XXX-XXXXX"
-                                        className="w-full"
-                                        value={staffInfo.personalInfo.firstName}
-                                        onChange={(e) => setStaffInfo({ ...staffInfo, personalInfo: { ...staffInfo.personalInfo, phone: e.target.value } })}
-                                    />
-                                    <Input
-                                        label="Social Security No"
-                                        labelPlacement="outside"
-                                        placeholder="SSN-XXX-XXX-XXX"
-                                        className="w-full"
-                                        value={staffInfo.personalInfo.firstName}
-                                        onChange={(e) => setStaffInfo({ ...staffInfo, personalInfo: { ...staffInfo.personalInfo, phone: e.target.value } })}
-                                    />
-                                </div>
+                            <ModalBody className="">
+                                {modalAction === "add" || modalAction === "update" ?
+                                    <>
+                                        <p className="font-semibold">Personal Info</p>
+                                        <div className="mx-4 gap-8 space-y-12 mb-4">
+                                            <Input
+                                                isRequired
+                                                name="first_name"
+                                                label="First Name"
+                                                labelPlacement="outside"
+                                                placeholder="John"
+                                                className="w-full"
+                                                value={staffInfo.personalInfo.first_name}
+                                                onChange={handlePersonalInfoChange}
+                                            />
+                                            <Input
+                                                isRequired
+                                                name="last_name"
+                                                label="Last Name"
+                                                labelPlacement="outside"
+                                                placeholder="Doe"
+                                                className="w-full"
+                                                value={staffInfo.personalInfo.last_name}
+                                                onChange={handlePersonalInfoChange}
+                                            />
+                                            <Input
+                                                type="email"
+                                                name="email"
+                                                isRequired
+                                                label="Email"
+                                                labelPlacement="outside"
+                                                placeholder="user@gmail.com"
+                                                className="w-full"
+                                                value={staffInfo.personalInfo.email}
+                                                onChange={handlePersonalInfoChange}
+                                            />
+                                            <Input
+                                                isRequired
+                                                name="phone"
+                                                label="Phone"
+                                                labelPlacement="outside"
+                                                placeholder="024XXXXXXXX"
+                                                className="w-full"
+                                                value={staffInfo.personalInfo.phone}
+                                                onChange={handlePersonalInfoChange}
+                                            />
+                                            <DatePicker
+                                                label="Date of Birth"
+                                                labelPlacement="outside"
+                                                isRequired
+                                                onChange={(value) => setStaffInfo({ ...staffInfo, personalInfo: { ...staffInfo.personalInfo, dateOfBirth: value?.toString() } })}
+                                            />
+                                            <Select
+                                                name="nationality"
+                                                isRequired
+                                                label="Nationality"
+                                                labelPlacement="outside"
+                                                placeholder="Select nationality"
+                                                value={staffInfo.personalInfo.nationality}
+                                                onChange={handlePersonalInfoChange}
+                                            >
+                                                <SelectItem key="gh">Ghanaian</SelectItem>
+                                                <SelectItem key="ngn">Nigerian</SelectItem>
+                                                <SelectItem key="other">Other</SelectItem>
+                                            </Select>
+                                            <Select
+                                                isRequired
+                                                label="Gender"
+                                                labelPlacement="outside"
+                                                name="gender"
+                                                placeholder="Select gender"
+                                                value={staffInfo.personalInfo.gender}
+                                                onChange={handlePersonalInfoChange}
+                                            >
+                                                <SelectItem key="m">Male</SelectItem>
+                                                <SelectItem key="f">Female</SelectItem>
+                                            </Select>
+                                        </div>
+
+                                        <Separator />
+                                        <p className="font-semibold">Academic Info</p>
+                                        <div className="mx-4 gap-8 space-y-12">
+                                            <Input
+                                                name="placeOfBirth"
+                                                isRequired
+                                                label="Place of Birth"
+                                                labelPlacement="outside"
+                                                placeholder="Accra"
+                                                className="w-full"
+                                                value={staffInfo.placeOfBirth}
+                                                onChange={handleStaffInfoChange}
+                                            />
+                                            <Select
+                                                name="academicQualification"
+                                                isRequired
+                                                label="Academic Qualification"
+                                                labelPlacement="outside"
+                                                placeholder="Select qualification"
+                                                value={staffInfo.academicQualification}
+                                                onChange={handleStaffInfoChange}
+                                            >
+                                                <SelectItem key="bachelor">Bachelor</SelectItem>
+                                                <SelectItem key="hnd">Diploma</SelectItem>
+                                                <SelectItem key="wassce">Wassce</SelectItem>
+                                            </Select>
+                                            <Input
+                                                name="professionalQualification"
+                                                isRequired
+                                                label="Professional Qualification"
+                                                labelPlacement="outside"
+                                                placeholder="Teacher"
+                                                className="w-full"
+                                                value={staffInfo.professionalQualification}
+                                                onChange={handleStaffInfoChange}
+                                            />
+                                            <Input
+                                                name="placeOfResidence"
+                                                isRequired
+                                                label="Residence"
+                                                labelPlacement="outside"
+                                                placeholder="Kasoa"
+                                                className="w-full"
+                                                value={staffInfo.placeOfResidence}
+                                                onChange={handleStaffInfoChange}
+                                            />
+                                            <Input
+                                                name="hometown"
+                                                isRequired
+                                                label="Hometown"
+                                                labelPlacement="outside"
+                                                placeholder="Ho"
+                                                className="w-full"
+                                                value={staffInfo.hometown ?? ""}
+                                                onChange={handleStaffInfoChange}
+                                            />
+                                            <Input
+                                                name="bankAccNo"
+                                                label="Bank Acc No"
+                                                labelPlacement="outside"
+                                                placeholder="XXXX-XXX-XXXXX"
+                                                className="w-full"
+                                                value={staffInfo.bankAccNo ?? ""}
+                                                onChange={handleStaffInfoChange}
+                                            />
+                                            <Input
+                                                name="socialSecNo"
+                                                label="Social Security No"
+                                                labelPlacement="outside"
+                                                placeholder="SSN-XXX-XXX-XXX"
+                                                className="w-full"
+                                                value={staffInfo.socialSecNo ?? ""}
+                                                onChange={handleStaffInfoChange}
+                                            />
+                                        </div>
+                                    </>
+                                    :
+                                    modalAction === "view" ?
+                                        <Card className="w-full">
+                                            <CardHeader className="flex gap-3">
+                                                <UserRound className="border border rounded-lg" size={40} />
+                                                <div className="flex flex-col">
+                                                    <p className="text-md">{staffInfo.personalInfo.first_name} {staffInfo.personalInfo.last_name}</p>
+                                                    <p className="text-small text-default-500">{staffInfo.personalInfo.email} | {staffInfo.personalInfo.phone}</p>
+                                                </div>
+                                            </CardHeader>
+                                            <Divider />
+                                            <CardBody className="gap-4">
+                                                {/* <p >Staff Id: {staffInfo.staffId}</p> */}
+
+                                                <h1 className="font-bold">Personal</h1>
+                                                <div className="mx-4">
+                                                    <p>Gender: {staffInfo.personalInfo.gender === "m" ? "Male" : "Female"}</p>
+                                                    <p>Birth Place: {staffInfo.placeOfBirth}</p>
+                                                    <p>Residence: {staffInfo.placeOfResidence}</p>
+                                                    <p>Hometown: {staffInfo.hometown}</p>
+                                                </div>
+
+                                                <h1 className="font-bold">Qualification</h1>
+                                                <div className="mx-4">
+                                                    <p>Academic: {staffInfo.academicQualification}</p>
+                                                    <p>Professional: {staffInfo.professionalQualification}</p>
+                                                </div>
+
+                                                <h1 className="font-bold">Accounts</h1>
+                                                <div className="mx-4">
+                                                    <p>Bank Acc No: {staffInfo.bankAccNo}</p>
+                                                    <p>Social Sec No: {staffInfo.socialSecNo}</p>
+                                                </div>
+                                            </CardBody>
+                                            <Divider />
+                                            {/* <CardFooter> */}
+                                            {/*     <Link isExternal showAnchorIcon href="https://github.com/heroui-inc/heroui"> */}
+                                            {/*         Visit source code on GitHub. */}
+                                            {/*     </Link> */}
+                                            {/* </CardFooter> */}
+                                        </Card>
+                                        : modalAction === "delete" ?
+                                            <Card className="w-full">
+                                                <CardHeader className="flex gap-3">
+                                                    <UserRound className="border border rounded-lg" size={40} />
+                                                    <div className="flex flex-col">
+                                                        <p className="text-md">{staffInfo.personalInfo.first_name} {staffInfo.personalInfo.last_name}</p>
+                                                        <p className="text-small text-default-500">{staffInfo.personalInfo.email} | {staffInfo.personalInfo.phone}</p>
+                                                    </div>
+                                                </CardHeader>
+                                                <Divider />
+                                                <CardBody className="gap-4">
+                                                    <p >Staff Id: {staffInfo.staffId}</p>
+
+                                                    <h1 className="">Are you sure you want to delete this staff</h1>
+
+                                                    <Button className="color-brand-100" color="primary" onPress={() => handleDeleteStaff()}>
+                                                        Confirm Delete
+                                                    </Button>
+
+                                                </CardBody>
+                                                <Divider />
+                                            </Card>
+                                            :
+                                            null
+                                }
                             </ModalBody>
                             <ModalFooter>
                                 <Button color="default" variant="flat" onPress={() => handleOnCloseModal()}>
                                     Close
                                 </Button>
-                                <Button type="submit" color="primary" onPress={handleCreateNewStaff}>
-                                    Submit
-                                </Button>
+                                {modalAction === "add" ?
+                                    <Button type="submit" color="primary" onPress={handleCreateNewStaff}>
+                                        Submit
+                                    </Button>
+                                    : modalAction === "update" ?
+                                        <Button type="submit" color="primary" onPress={handleUpdateStaffInfo}>
+                                            Save Changes
+                                        </Button>
+                                        : null
+                                }
                             </ModalFooter>
                         </>
                     )}
                 </ModalContent>
             </Modal>
-        </div>
+        </div >
     )
 }

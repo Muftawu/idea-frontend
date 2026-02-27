@@ -1,19 +1,20 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { removeAuthTokens } from './lib/actions'
 
 export function middleware(request: NextRequest) {
 
     const { pathname } = request.nextUrl
 
-
-    console.log("pathname", pathname)
-
     const public_paths = ["/signin", "/signup"]
 
-    if (pathname.includes("logout")) {
+    if (request.url.includes("logout")) {
         console.log("logout included")
-        removeAuthTokens()
+        if (request.cookies.has("access_token") || request.cookies.has("refresh_token") || request.cookies.has("user_id")) {
+            console.log("has accesss, refresh and user_id")
+            request.cookies.delete("access_token")
+            request.cookies.delete("refresh_token")
+            request.cookies.delete("user_id")
+        }
     }
 
     if (!request.cookies.has("access_token") || !request.cookies.has("refresh_token")) {

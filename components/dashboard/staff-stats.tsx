@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Cell } from "recharts"
 import { cn } from "@/lib/utils"
+import { StaffStatSchemaT } from "@/lib/schemas"
 
 function Gauge({ value }: { value: number }) {
     const radius = 85
@@ -55,7 +56,7 @@ const lastDays = [
     { d: "25", v: 18 },
 ]
 
-export default function StaffStatistics({ className }: { className?: string }) {
+export default function StaffStatistics({ className, data }: { className?: string, data: StaffStatSchemaT }) {
     const [value, setValue] = useState(65)
 
     const bars = useMemo(
@@ -79,9 +80,9 @@ export default function StaffStatistics({ className }: { className?: string }) {
         >
             <div className="flex flex-col items-center justify-center">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="px-3 py-1 rounded-full bg-muted text-lg text-foreground">32</span>
+                    <span className="px-3 py-1 rounded-full bg-muted text-lg text-foreground">{data.maleCount}</span>
                 </div>
-                <Gauge value={value} />
+                <Gauge value={data.malePercentage} />
                 <div className="mt-4 w-full">
                     <p className="mt-1 text-center text-lg text-muted-foreground">Male Staff</p>
                 </div>
@@ -89,9 +90,9 @@ export default function StaffStatistics({ className }: { className?: string }) {
 
             <div className="flex flex-col items-center justify-center">
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="px-3 py-1 rounded-full bg-muted text-lg text-foreground">41</span>
+                    <span className="px-3 py-1 rounded-full bg-muted text-lg text-foreground">{data.femaleCount}</span>
                 </div>
-                <Gauge value={value} />
+                <Gauge value={data.femalePercentage} />
                 <div className="mt-4 w-full">
                     <p className="mt-1 text-center text-lg text-muted-foreground">Female Staff</p>
                 </div>

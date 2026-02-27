@@ -26,7 +26,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
 
     if (!authInfo || !authInfo.userInfo) return (
         <div className="flex flex-row justify-end mb-2">
-        <Spinner color="warning" size="sm" />
+            <Spinner color="warning" size="sm" />
         </div>
     )
 
@@ -83,7 +83,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
 
                     {/* User dropdown */}
                     <DropdownMenu>
-                        <DropdownMenuTrigger className="rounded-full p-1.5 hover:bg-muted focus:outline-none focus:ring-2">
+                        <DropdownMenuTrigger className="rounded-full p-1.5 hover:bg-muted focus:outline-none focus:ring-2 cursor-pointer">
                             <Avatar className="size-8">
                                 <AvatarFallback>{authInfo.userInfo?.first_name ? authInfo.userInfo.first_name[0] : "U"}</AvatarFallback>
                             </Avatar>

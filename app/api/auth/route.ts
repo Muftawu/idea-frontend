@@ -3,7 +3,7 @@ import { refetchTokens, removeAuthTokens, setAuthTokens } from '@/lib/actions';
 import { BaseRequestHeaders } from '@/lib/utils';
 import { cookies } from 'next/headers';
 
-const getUserInfo = async () => {
+const getFn = async () => {
     const cookieStore = await cookies()
     const user_id = cookieStore.get("user_id")?.value ?? ""
     const access_token = cookieStore.get("access_token")?.value ?? ""
@@ -21,14 +21,14 @@ const getUserInfo = async () => {
 }
 
 export async function GET(request: NextRequest) {
-    let out = await getUserInfo()
+    let out = await getFn()
     if (!out?.response.ok) {
         if (out?.response.status === 401) {
             const cookieStore = await cookies()
             const refresh_token = cookieStore.get("refresh_token")?.value ?? ""
             const refetchSuccess = await refetchTokens(refresh_token)
             if (refetchSuccess) {
-                out = await getUserInfo()
+                out = await getFn()
             } else {
                 await removeAuthTokens()
             }

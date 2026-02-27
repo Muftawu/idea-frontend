@@ -19,3 +19,8 @@ export const BaseRequestHeaders = {
 
 export const BaseErrMsg = "Something went wrong. Please try again"
 
+export type dynamicFormUpdates  = {
+    field: string,
+    value: string
+
+}

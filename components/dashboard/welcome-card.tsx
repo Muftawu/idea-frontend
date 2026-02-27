@@ -21,8 +21,8 @@ export function WelcomeCard() {
                         What would you like to do today?
                     </p>
                     <div className="mt-4 flex items-center gap-4 rounded-2xl bg-white/10 px-4 py-3 text-sm">
-                        <span className="text-2xl">{new Date().toLocaleString().split(',')[0]}</span> |
-                        <span className="text-2xl">{new Date().toLocaleString().split(',')[1]}</span>
+                        <span suppressHydrationWarning className="text-2xl">{new Date().toLocaleString().split(',')[0]}</span> |
+                        <span suppressHydrationWarning className="text-2xl">{new Date().toLocaleString().split(',')[1]}</span>
                         {/* <div> */}
                         {/*     <div className="font-medium">{new Date().getUTCMonth()}</div> */}
                         {/*     <div className="text-white/80">{new Date().toLocaleString()}</div> */}
