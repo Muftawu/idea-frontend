@@ -1,14 +1,5 @@
 import * as z from "zod";
 
-// CLASSROOM //
-const ClassRoomSchema = z.object({
-    id: z.string().optional(),
-    name: z.string(),
-    teacher: z.string().optional(),
-    group: z.string().optional(),
-    studentCount: z.number()
-})
-
 // USER //
 const UserSchema = z.object({
     id: z.string().optional(),
@@ -21,13 +12,22 @@ const UserSchema = z.object({
     nationality: z.string().optional()
 })
 
-// STAFF //
+// STAFF STATS //
 const StaffStatsSchema = z.object({
     maleCount: z.number(),
     femaleCount: z.number(),
     malePercentage: z.number(),
     femalePercentage: z.number()
 })
+
+// STUDENT STATS //
+const StudentStatsSchema = z.object({
+    maleCount: z.number(),
+    femaleCount: z.number(),
+    malePercentage: z.number(),
+    femalePercentage: z.number()
+})
+
 
 const StaffInfoSchema = z.object({
     id: z.string().optional(),
@@ -51,9 +51,47 @@ const SubjectSchema = z.object({
     scoreOptions: z.array(z.string()).optional(),
 })
 
+// CLASSROOM //
+const ClassRoomSchema = z.object({
+    id: z.string().optional(),
+    name: z.string(),
+    classTeacher: z.string().optional(),
+    classGroup: z.string().optional(),
+    subclassLabel: z.string().optional(),
+    classTeacherName: z.string().optional(),
+    studentCount: z.number().optional(),
+})
+
+// STUDENT //
+const StudentSchema = z.object({
+    id: z.string().optional(),
+    surname: z.string(),
+    otherNames: z.string().optional(),
+    dateOfBirth: z.string().optional(),
+    placeOfBirth: z.string().optional(),
+    gender: z.string().optional(),
+    nationality: z.string().optional(),
+    religion: z.string().optional(),
+    schoolsAttended: z.string().optional(),
+    healthProblems: z.string().optional(),
+})
+
+// GUARDIAN //
+const GuardianSchema = z.object({
+    id: z.string().optional(),
+    fullname: z.string(),
+    occupation: z.string().optional(),
+    educationBackground: z.string().optional(),
+    phone: z.string().optional(),
+    postAddress: z.string().optional(),
+    houseNumber: z.string().optional(),
+})
 
 export type ClassRoomSchemaT = z.infer<typeof ClassRoomSchema>
 export type UserSchemaT = z.infer<typeof UserSchema>
 export type StaffT = z.infer<typeof StaffInfoSchema>
 export type SubjectT = z.infer<typeof SubjectSchema>
 export type StaffStatSchemaT = z.infer<typeof StaffStatsSchema>
+export type StudentSchemaT = z.infer<typeof StudentSchema>
+export type GuardianSchemaT = z.infer<typeof GuardianSchema>
+export type StudentStatsSchemaT = z.infer<typeof StudentStatsSchema>

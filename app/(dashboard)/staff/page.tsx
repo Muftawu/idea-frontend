@@ -54,14 +54,17 @@ export default function Staff() {
 
     useEffect(() => {
         const fetchStaffStats = async () => {
-            const response = await fetch(`/api/stats?query=staff`, {
-                headers: { ...BaseRequestHeaders },
-            })
-            const result = await response.json()
-            if (!response.ok) {
-                return Promise.reject(response.status)
-            } else {
-                setStaffStats(result.data)
+            try {
+                const response = await fetch(`/api/stats?query=staff`, {
+                    headers: { ...BaseRequestHeaders },
+                })
+                const result = await response.json()
+                if (!response.ok) {
+                    return Promise.reject(response.status)
+                } else {
+                    setStaffStats(result.data)
+                }
+            } catch (err: any) {
             }
         }
         fetchStaffStats()
@@ -69,16 +72,20 @@ export default function Staff() {
 
     useEffect(() => {
         const fetchAllStaff = async () => {
-            const response = await fetch(`/api/staff?query=all`, {
-                headers: { ...BaseRequestHeaders },
-            })
-            const result = await response.json()
-            if (!response.ok) {
-                return Promise.reject(response.status)
-            } else {
-                setAllStaff(result.data)
+            try {
+                const response = await fetch(`/api/staff?query=all`, {
+                    headers: { ...BaseRequestHeaders },
+                })
+                const result = await response.json()
+                if (!response.ok) {
+                    setStaffFetched(false)
+                    return Promise.reject(response.status)
+                } else {
+                    setAllStaff(result.data)
+                    setStaffFetched(true)
+                }
+            } catch (err: any) {
             }
-            setStaffFetched(true)
         }
         fetchAllStaff()
     }, [loading])
@@ -275,8 +282,7 @@ export default function Staff() {
                             <p className="mx-4">Fetching staff data...</p>
                         </div>
                         :
-
-                        allStaff.length === 0 ? <p className="mx-4">No staff available</p> :
+                        allStaff.length < 1 ? <p className="mx-4">No staff available</p> :
                             allStaff.map((item, index) => (
                                 <li key={index} className="flex items-center gap-4 py-4">
                                     <div className="size-10 shrink-0 rounded-full bg-primary/10 grid place-items-center text-primary font-medium">
@@ -290,17 +296,14 @@ export default function Staff() {
                                         <p className="truncate text-sm text-muted-foreground">Phone: {item.personalInfo?.phone}</p>
                                     </div>
                                     <div className="flex flex-row justify-center items-center">
-                                        <Button className="color-brand-100" color="primary" onPress={() => handleOpenModal("update", item)}>
+                                        <Button size="sm" className="color-brand-100" color="primary" onPress={() => handleOpenModal("update", item)}>
                                             <Edit />
-                                            Edit
                                         </Button>
-                                        <Button className="color-brand-100 mx-2" color="primary" onPress={() => handleOpenModal("delete", item)}>
+                                        <Button size="sm" className="color-brand-100 mx-2" color="primary" onPress={() => handleOpenModal("delete", item)}>
                                             <TrashIcon />
-                                            Del
                                         </Button>
-                                        <Button className="color-brand-100" color="primary" onPress={() => handleOpenModal("view", item)}>
+                                        <Button size="sm" className="color-brand-100" color="primary" onPress={() => handleOpenModal("view", item)}>
                                             <EyeIcon />
-                                            View
                                         </Button>
 
                                     </div>

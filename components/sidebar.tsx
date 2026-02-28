@@ -5,18 +5,14 @@ import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import {
     Home,
-    BarChart3,
-    Shield,
-    TabletSmartphone,
     UserRound,
-    LogIn,
-    LogOut,
     ChevronFirst,
     ChevronLast,
     Users,
     Theater,
     BookOpen,
-    SettingsIcon
+    SettingsIcon,
+    UserRoundPlusIcon
 } from "lucide-react"
 import Image from "next/image"
 import ideaLogo from "../public/images/idea.jpg"
@@ -32,13 +28,9 @@ const items: Item[] = [
     { href: "/staff", label: "Staff", icon: Users },
     { href: "/classrooms", label: "Classrooms", icon: Theater },
     { href: "/subjects", label: "Subjects", icon: BookOpen },
+    { href: "/registration", label: "Registration", icon: UserRoundPlusIcon },
     { href: "/settings", label: "Settings", icon: SettingsIcon },
     { href: "/profile", label: "Profile", icon: UserRound },
-
-    // { href: "/statistics", label: "Statistics", icon: BarChart3 },
-    // { href: "/security", label: "Settings", icon: Shield },
-    // { href: "/signin", label: "Signin", icon: LogIn },
-    // { href: "/signup", label: "Signup", icon: LogOut },
 ]
 
 export function Sidebar() {
