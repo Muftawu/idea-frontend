@@ -19,8 +19,11 @@ export const BaseRequestHeaders = {
 
 export const BaseErrMsg = "Something went wrong. Please try again"
 
-export type dynamicFormUpdates  = {
+export type dynamicFormUpdates = {
     field: string,
     value: string
-
 }
+
+export const Nationalities: string[] = ["Ghanaian", "Other"]
+
+export const EducationalBackgrounds: string[] = ["WASSCE", "Diploma", "Bachelor"]

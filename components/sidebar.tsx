@@ -27,8 +27,8 @@ const items: Item[] = [
     { href: "/", label: "Home", icon: Home },
     { href: "/staff", label: "Staff", icon: Users },
     { href: "/classrooms", label: "Classrooms", icon: Theater },
+    { href: "/students", label: "Students", icon: UserRoundPlusIcon },
     { href: "/subjects", label: "Subjects", icon: BookOpen },
-    { href: "/registration", label: "Registration", icon: UserRoundPlusIcon },
     { href: "/settings", label: "Settings", icon: SettingsIcon },
     { href: "/profile", label: "Profile", icon: UserRound },
 ]
@@ -87,7 +87,7 @@ export function Sidebar() {
                                         }`}
                                 >
                                     <Icon className={`size-5 ${active ? "text-brand" : "text-white"}`} />
-                                    <span className={`${open ? "block" : "hidden"} text-sm`}>{label}</span>
+                                    <span className={`${open ? "block" : "hidden"} text-sm font-bold`}>{label}</span>
                                 </Link>
                             </li>
                         )

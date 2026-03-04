@@ -12,18 +12,12 @@ const getFn = async (query: string) => {
     const access_token = cookieStore.get("access_token")?.value ?? ""
 
     const link = query === "all" ? baseUrlList : `${baseUrlDetail}${query}`
-    const headers = query === "all" ?
-        {
-            ...BaseRequestHeaders,
-            "Authorization": `Bearer ${access_token}`
-        }
-        :
-        {
-            ...BaseRequestHeaders,
-        }
 
     const response = await fetch(link, {
-        headers: headers,
+        headers: {
+            ...BaseRequestHeaders,
+            "Authorization": `Bearer ${access_token}`
+        },
     })
     const result = await response.json()
     return { response, result }

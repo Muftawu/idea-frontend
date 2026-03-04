@@ -1,8 +1,8 @@
 "use client"
 import { PlusCircle, Sunrise, EyeIcon, Edit } from "lucide-react"
 import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts"
-import { useState } from "react"
-import { SubjectT } from "@/lib/schemas"
+import { useEffect, useState } from "react"
+import { ClassGroupSubjectT } from "@/lib/schemas"
 import { Input, Select, SelectItem, Checkbox, Button, DatePicker } from "@heroui/react";
 import {
     Modal,
@@ -14,7 +14,7 @@ import {
 } from "@heroui/react";
 import { Separator } from "@/components/ui/separator"
 import { SubjecStatistics } from "@/components/dashboard/subject-stats"
-import { ClassGroups } from "@/lib/utils"
+import { BaseRequestHeaders, ClassGroups } from "@/lib/utils"
 
 export default function Subjects() {
 
@@ -23,28 +23,31 @@ export default function Subjects() {
     const [hasMultichoiceScoring, setHasMultichoiceScoring] = useState<boolean>(false)
     const [multiScoreCount, setMultiScoreCount] = useState<number>(1)
     const scoreOptions = ["yes", "always", "sometimes", "no"]
+    const [loading, setLoading] = useState<boolean>(false)
 
-    const [subjectInfo, setSubjectInfo] = useState<SubjectT>({
-        classGroup: "",
-        name: "",
-        scoreType: "",
-        scoreOptions: []
-    })
+    const [allClasses, setAllClasses] = useState<ClassGroupSubjectT[]>([])
+    const [classGroupSubjectInfo, setClassGroupSubjectInfo] = useState<ClassGroupSubjectT>()
 
-    const subjects: SubjectT[] = [
-        {
-            classGroup: "Nursery",
-            name: "Keep self clean",
-            scoreType: "multiple",
-            scoreOptions: scoreOptions
-        },
-        {
-            classGroup: "Nursery",
-            name: "Keep self clean",
-            scoreType: "multiple",
-            scoreOptions: scoreOptions
-        },
-    ]
+    useEffect(() => {
+        const fetchAllClasses = async () => {
+            try {
+                const response = await fetch(`/api/classes?query=all`, {
+                    headers: { ...BaseRequestHeaders},
+                })
+                const result = await response.json()
+                if (!response.ok) {
+                    return Promise.reject(response.status)
+                } else {
+                    setAllClassrooms(result.data)
+                }
+                setClassroomsFetched(true)
+            } catch (err: any) {
+                throw new Error(err)
+            }
+        }
+        fetchAllClasses()
+    }, [loading])
+
 
     async function handleCreateNewStaff() {
         console.log("dialog")

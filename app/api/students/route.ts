@@ -1,11 +1,11 @@
 import { BaseRequestHeaders } from '@/lib/utils';
 import { NextResponse, NextRequest } from 'next/server';
 import { cookies } from "next/headers";
-import { StaffT } from '@/lib/schemas';
+import { StudentSchemaT } from '@/lib/schemas';
 import { refetchTokens, removeAuthTokens } from '@/lib/actions';
 
-const baseUrlList = `${process.env.BASE_API_URL}/staff/`
-const baseUrlDetail = `${process.env.BASE_API_URL}/staff/detail/`
+const baseUrlList = `${process.env.BASE_API_URL}/students/`
+const baseUrlDetail = `${process.env.BASE_API_URL}/students/detail/`
 
 const getFn = async (query: string) => {
     const cookieStore = await cookies()
@@ -23,7 +23,7 @@ const getFn = async (query: string) => {
     return { response, result }
 }
 
-const createFn = async (payload: StaffT) => {
+const createFn = async (payload: StudentSchemaT) => {
     const cookieStore = await cookies()
     const access_token = cookieStore.get("access_token")?.value ?? ""
 
@@ -39,11 +39,11 @@ const createFn = async (payload: StaffT) => {
     return { response, result }
 }
 
-const updateFn = async (payload: StaffT) => {
+const updateFn = async (studentId: string, payload: StudentSchemaT) => {
     const cookieStore = await cookies()
     const access_token = cookieStore.get("access_token")?.value ?? ""
 
-    const response = await fetch(`${baseUrlDetail}${payload.id}/`, {
+    const response = await fetch(`${baseUrlDetail}${studentId}/`, {
         method: "PATCH",
         headers: {
             ...BaseRequestHeaders,
@@ -120,15 +120,18 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
     const payload = await request.json()
+    const searchParams = request.nextUrl.searchParams
+    const query = searchParams.get("query") ?? ""
 
-    let out = await updateFn(payload)
+
+    let out = await updateFn(query, payload)
     if (!out?.response.ok) {
         if (out?.response.status === 401) {
             const cookieStore = await cookies()
             const refresh_token = cookieStore.get("refresh_token")?.value ?? ""
             const refetchSuccess = await refetchTokens(refresh_token)
             if (refetchSuccess) {
-                out = await updateFn(payload)
+                out = await updateFn(query, payload)
             } else {
                 await removeAuthTokens()
             }

@@ -43,7 +43,7 @@ const StaffInfoSchema = z.object({
 })
 
 // SUBJECT //
-const SubjectSchema = z.object({
+const ClassGroupSubjectSchema = z.object({
     id: z.string().optional(),
     classGroup: z.string(),
     name: z.string(),
@@ -62,18 +62,26 @@ const ClassRoomSchema = z.object({
     studentCount: z.number().optional(),
 })
 
+const CurrentClassDetailSchema = z.object({
+    id: z.string().optional(),
+    name: z.string().optional()
+})
+
 // STUDENT //
 const StudentSchema = z.object({
     id: z.string().optional(),
     surname: z.string(),
-    otherNames: z.string().optional(),
-    dateOfBirth: z.string().optional(),
+    otherNames: z.string(),
+    dateOfBirth: z.date(),
     placeOfBirth: z.string().optional(),
     gender: z.string().optional(),
-    nationality: z.string().optional(),
-    religion: z.string().optional(),
+    nationality: z.string(),
+    religion: z.string(),
     schoolsAttended: z.string().optional(),
     healthProblems: z.string().optional(),
+    currentClass: CurrentClassDetailSchema,
+    age: z.number(),
+    guardianId: z.string()
 })
 
 // GUARDIAN //
@@ -81,16 +89,16 @@ const GuardianSchema = z.object({
     id: z.string().optional(),
     fullname: z.string(),
     occupation: z.string().optional(),
-    educationBackground: z.string().optional(),
+    educationalBackground: z.string(),
     phone: z.string().optional(),
-    postAddress: z.string().optional(),
+    postalAddress: z.string().optional(),
     houseNumber: z.string().optional(),
 })
 
 export type ClassRoomSchemaT = z.infer<typeof ClassRoomSchema>
 export type UserSchemaT = z.infer<typeof UserSchema>
 export type StaffT = z.infer<typeof StaffInfoSchema>
-export type SubjectT = z.infer<typeof SubjectSchema>
+export type ClassGroupSubjectT = z.infer<typeof ClassGroupSubjectSchema>
 export type StaffStatSchemaT = z.infer<typeof StaffStatsSchema>
 export type StudentSchemaT = z.infer<typeof StudentSchema>
 export type GuardianSchemaT = z.infer<typeof GuardianSchema>

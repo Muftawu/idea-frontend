@@ -31,8 +31,8 @@ export default function RootLayout({
                 <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
                     <AuthProvider >
                         <Suspense fallback={null}>
+                            <ToastContainer />
                             <HeroUIProvider>
-                                <ToastContainer />
                                 {children}
                             </HeroUIProvider>
                             <Analytics />

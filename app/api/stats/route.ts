@@ -9,12 +9,7 @@ const getFn = async (query: string) => {
     const cookieStore = await cookies()
     const access_token = cookieStore.get("access_token")?.value ?? ""
 
-    let link = ""
-    if (query === "staff") {
-        link = `${baseApiUrl}/staff`
-    }
-
-    const response = await fetch(link, {
+    const response = await fetch(`${baseApiUrl}/${query}`, {
         headers: {
             ...BaseRequestHeaders,
             "Authorization": `Bearer ${access_token}`

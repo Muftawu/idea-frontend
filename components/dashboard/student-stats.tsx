@@ -84,7 +84,7 @@ export default function StudentStatistics({ className, data }: { className?: str
                 </div>
                 <Gauge value={data.malePercentage} />
                 <div className="mt-4 w-full">
-                    <p className="mt-1 text-center text-lg text-muted-foreground">Male Staff</p>
+                    <p className="mt-1 text-center text-lg text-muted-foreground">Male Students</p>
                 </div>
             </div>
 
@@ -94,7 +94,7 @@ export default function StudentStatistics({ className, data }: { className?: str
                 </div>
                 <Gauge value={data.femalePercentage} />
                 <div className="mt-4 w-full">
-                    <p className="mt-1 text-center text-lg text-muted-foreground">Female Staff</p>
+                    <p className="mt-1 text-center text-lg text-muted-foreground">Female Students</p>
                 </div>
             </div>
 
